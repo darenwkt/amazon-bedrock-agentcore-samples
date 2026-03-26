@@ -25,7 +25,10 @@ class DroidHandler(BaseHTTPRequestHandler):
             self.end_headers()
             return
 
-        filename = self.path.split("/api/identify/", 1)[1]
+        filename = os.path.basename(self.path.split("/api/identify/", 1)[1])
+        if not filename:
+            self._respond(400, {"error": "filename is required"})
+            return
         content_length = int(self.headers.get("Content-Length", 0))
         file_bytes = self.rfile.read(content_length)
 

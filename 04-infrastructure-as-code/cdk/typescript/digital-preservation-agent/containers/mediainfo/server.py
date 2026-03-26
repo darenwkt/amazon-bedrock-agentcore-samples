@@ -24,7 +24,13 @@ class MediaInfoHandler(BaseHTTPRequestHandler):
             self.end_headers()
             return
 
-        filename = self.path.split("/mediainfo/", 1)[1]
+        filename = os.path.basename(self.path.split("/mediainfo/", 1)[1])
+        if not filename:
+            self.send_response(400)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps({"error": "filename is required"}).encode())
+            return
         content_length = int(self.headers.get("Content-Length", 0))
         file_bytes = self.rfile.read(content_length)
 
