@@ -22,9 +22,9 @@ s3 = boto3.client("s3")
 MAX_FILE_SIZE = 100 * 1024 * 1024  # 100 MB
 
 ACTIONS = {
-    "extract_text":     ("/tika",          "text/plain"),
-    "extract_metadata": ("/meta",          "application/json"),
-    "detect_type":      ("/detect/stream", "text/plain"),
+    "extract_text": ("/tika", "text/plain"),
+    "extract_metadata": ("/meta", "application/json"),
+    "detect_type": ("/detect/stream", "text/plain"),
 }
 
 
@@ -47,7 +47,9 @@ def handler(event, context):
     try:
         head = s3.head_object(Bucket=DOCS_BUCKET, Key=s3_key)
         if head.get("ContentLength", 0) > MAX_FILE_SIZE:
-            return _resp({"error": f"File exceeds {MAX_FILE_SIZE // (1024*1024)} MB limit"})
+            return _resp(
+                {"error": f"File exceeds {MAX_FILE_SIZE // (1024 * 1024)} MB limit"}
+            )
         obj = s3.get_object(Bucket=DOCS_BUCKET, Key=s3_key)
         file_bytes = obj["Body"].read()
         content_type = obj.get("ContentType", "application/octet-stream")
@@ -77,7 +79,8 @@ def _call_tika(path, data, content_type, accept, timeout=90, retries=3):
     for i in range(retries):
         try:
             req = urllib.request.Request(
-                f"{ALB_URL}{path}", data=data,
+                f"{ALB_URL}{path}",
+                data=data,
                 headers={"Content-Type": content_type, "Accept": accept},
                 method="PUT",
             )

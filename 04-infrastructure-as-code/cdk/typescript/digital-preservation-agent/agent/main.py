@@ -40,11 +40,13 @@ model = BedrockModel(inference_profile_id=MODEL_ID, region_name=AWS_REGION)
 
 def _create_mcp_client():
     """Create an MCP client factory for the AgentCore Gateway."""
-    return MCPClient(lambda: aws_iam_streamablehttp_client(
-        endpoint=GATEWAY_URL,
-        aws_region=AWS_REGION,
-        aws_service="bedrock-agentcore",
-    ))
+    return MCPClient(
+        lambda: aws_iam_streamablehttp_client(
+            endpoint=GATEWAY_URL,
+            aws_region=AWS_REGION,
+            aws_service="bedrock-agentcore",
+        )
+    )
 
 
 @app.entrypoint
@@ -54,7 +56,9 @@ def handler(payload: dict) -> dict:
     if not prompt:
         return {"error": "No prompt provided", "status": "error"}
 
-    logger.info("Received prompt: %s | model=%s region=%s", prompt[:200], MODEL_ID, AWS_REGION)
+    logger.info(
+        "Received prompt: %s | model=%s region=%s", prompt[:200], MODEL_ID, AWS_REGION
+    )
 
     # MCPClient uses a context manager to manage the MCP session lifecycle.
     # Each request gets its own session to avoid stale connection issues.

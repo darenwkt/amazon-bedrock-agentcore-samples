@@ -29,7 +29,9 @@ def handler(event, context):
     try:
         head = s3.head_object(Bucket=DOCS_BUCKET, Key=s3_key)
         if head.get("ContentLength", 0) > MAX_FILE_SIZE:
-            return _resp({"error": f"File exceeds {MAX_FILE_SIZE // (1024*1024)} MB limit"})
+            return _resp(
+                {"error": f"File exceeds {MAX_FILE_SIZE // (1024 * 1024)} MB limit"}
+            )
         obj = s3.get_object(Bucket=DOCS_BUCKET, Key=s3_key)
         file_bytes = obj["Body"].read()
     except ClientError as e:

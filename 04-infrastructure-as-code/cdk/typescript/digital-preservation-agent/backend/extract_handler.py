@@ -40,7 +40,11 @@ def handler(event, context):
     try:
         head = s3_client.head_object(Bucket=DOCS_BUCKET, Key=s3_key)
         if head.get("ContentLength", 0) > MAX_FILE_SIZE_BYTES:
-            return _response({"error": f"Archive exceeds {MAX_FILE_SIZE_BYTES // (1024*1024)} MB limit"})
+            return _response(
+                {
+                    "error": f"Archive exceeds {MAX_FILE_SIZE_BYTES // (1024 * 1024)} MB limit"
+                }
+            )
         obj = s3_client.get_object(Bucket=DOCS_BUCKET, Key=s3_key)
         archive_bytes = obj["Body"].read()
     except ClientError as e:
@@ -56,17 +60,21 @@ def handler(event, context):
         elif _is_tarfile(archive_bytes):
             extracted_files = _extract_tar(archive_bytes, dest_prefix)
         else:
-            return _response({"error": "Unsupported archive format. Supported: ZIP, TAR, TAR.GZ"})
+            return _response(
+                {"error": "Unsupported archive format. Supported: ZIP, TAR, TAR.GZ"}
+            )
     except Exception:
         logger.exception("Archive extraction failed")
         return _response({"error": "Archive extraction failed"})
 
-    return _response({
-        "s3_key": s3_key,
-        "destination_prefix": dest_prefix,
-        "extracted_count": len(extracted_files),
-        "extracted_files": extracted_files[:50],  # cap listing
-    })
+    return _response(
+        {
+            "s3_key": s3_key,
+            "destination_prefix": dest_prefix,
+            "extracted_count": len(extracted_files),
+            "extracted_files": extracted_files[:50],  # cap listing
+        }
+    )
 
 
 def _extract_zip(archive_bytes, dest_prefix):
@@ -76,7 +84,9 @@ def _extract_zip(archive_bytes, dest_prefix):
             if info.is_dir():
                 continue
             dest_key = dest_prefix + info.filename
-            s3_client.put_object(Bucket=DOCS_BUCKET, Key=dest_key, Body=zf.read(info.filename))
+            s3_client.put_object(
+                Bucket=DOCS_BUCKET, Key=dest_key, Body=zf.read(info.filename)
+            )
             extracted.append(dest_key)
     return extracted
 
@@ -98,7 +108,7 @@ def _extract_tar(archive_bytes, dest_prefix):
 
 def _is_tarfile(data):
     try:
-        with tarfile.open(fileobj=io.BytesIO(data)) as tf:
+        with tarfile.open(fileobj=io.BytesIO(data)) as _:
             return True
     except (tarfile.TarError, Exception):
         return False

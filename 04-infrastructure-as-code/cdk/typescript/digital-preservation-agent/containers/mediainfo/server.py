@@ -41,7 +41,9 @@ class MediaInfoHandler(BaseHTTPRequestHandler):
         try:
             result = subprocess.run(
                 ["mediainfo", "--Output=JSON", tmp_path],
-                capture_output=True, text=True, timeout=60,
+                capture_output=True,
+                text=True,
+                timeout=60,
             )
             self.send_response(200)
             self.send_header("Content-Type", "application/json")

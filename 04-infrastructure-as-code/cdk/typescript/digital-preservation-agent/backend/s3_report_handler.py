@@ -41,11 +41,13 @@ def handler(event, context):
             Body=body.encode("utf-8"),
             ContentType="application/json",
         )
-        return _response({
-            "s3_key": s3_key,
-            "s3_uri": f"s3://{DOCS_BUCKET}/{s3_key}",
-            "status": "saved",
-        })
+        return _response(
+            {
+                "s3_key": s3_key,
+                "s3_uri": f"s3://{DOCS_BUCKET}/{s3_key}",
+                "status": "saved",
+            }
+        )
     except Exception:
         logger.exception("Failed to save report to S3")
         return _response({"error": "Failed to save report to S3"})

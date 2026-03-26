@@ -43,11 +43,15 @@ class DroidHandler(BaseHTTPRequestHandler):
             try:
                 subprocess.run(
                     ["droid.sh", "-A", file_path, "-p", profile_path],
-                    capture_output=True, text=True, timeout=90,
+                    capture_output=True,
+                    text=True,
+                    timeout=90,
                 )
                 subprocess.run(
                     ["droid.sh", "-p", profile_path, "-e", export_path],
-                    capture_output=True, text=True, timeout=90,
+                    capture_output=True,
+                    text=True,
+                    timeout=90,
                 )
 
                 results = []
@@ -56,14 +60,16 @@ class DroidHandler(BaseHTTPRequestHandler):
                         reader = csv.DictReader(csvfile)
                         for row in reader:
                             if row.get("TYPE") == "File":
-                                results.append({
-                                    "puid": row.get("PUID", ""),
-                                    "format_name": row.get("FORMAT_NAME", ""),
-                                    "format_version": row.get("FORMAT_VERSION", ""),
-                                    "mime_type": row.get("MIME_TYPE", ""),
-                                    "method": row.get("METHOD", ""),
-                                    "file_size": row.get("SIZE", ""),
-                                })
+                                results.append(
+                                    {
+                                        "puid": row.get("PUID", ""),
+                                        "format_name": row.get("FORMAT_NAME", ""),
+                                        "format_version": row.get("FORMAT_VERSION", ""),
+                                        "mime_type": row.get("MIME_TYPE", ""),
+                                        "method": row.get("METHOD", ""),
+                                        "file_size": row.get("SIZE", ""),
+                                    }
+                                )
 
                 self._respond(200, {"results": results})
             except subprocess.TimeoutExpired:

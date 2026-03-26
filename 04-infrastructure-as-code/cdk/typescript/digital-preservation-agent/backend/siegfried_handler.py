@@ -7,7 +7,6 @@ Returns PRONOM format identification results (JSON).
 import json
 import logging
 import os
-import io
 import urllib.request
 import urllib.error
 import boto3
@@ -35,7 +34,9 @@ def handler(event, context):
     try:
         head = s3.head_object(Bucket=DOCS_BUCKET, Key=s3_key)
         if head.get("ContentLength", 0) > MAX_FILE_SIZE:
-            return _resp({"error": f"File exceeds {MAX_FILE_SIZE // (1024*1024)} MB limit"})
+            return _resp(
+                {"error": f"File exceeds {MAX_FILE_SIZE // (1024 * 1024)} MB limit"}
+            )
         obj = s3.get_object(Bucket=DOCS_BUCKET, Key=s3_key)
         file_bytes = obj["Body"].read()
     except ClientError as e:
@@ -49,10 +50,14 @@ def handler(event, context):
         # Siegfried server expects POST /identify with multipart form-data
         boundary = "----SiegfriedBoundary"
         body = (
-            f"--{boundary}\r\n"
-            f'Content-Disposition: form-data; name="file"; filename="{filename}"\r\n'
-            f"Content-Type: application/octet-stream\r\n\r\n"
-        ).encode() + file_bytes + f"\r\n--{boundary}--\r\n".encode()
+            (
+                f"--{boundary}\r\n"
+                f'Content-Disposition: form-data; name="file"; filename="{filename}"\r\n'
+                f"Content-Type: application/octet-stream\r\n\r\n"
+            ).encode()
+            + file_bytes
+            + f"\r\n--{boundary}--\r\n".encode()
+        )
 
         req = urllib.request.Request(
             f"{ALB_URL}/identify?format=json",
